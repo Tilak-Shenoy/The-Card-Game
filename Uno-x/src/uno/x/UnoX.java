@@ -82,7 +82,7 @@ class CardDeck implements GameConstants {
 	}
 	
 	
-	//Create 108 cards for this CardDeck
+	//Create 108 cards for this CardDeck..adds all of them into carddeck and adds them into a linked list called UNOcards
 	private void addCards() {
 		for(Color color:UNO_COLORS){
 			
@@ -110,12 +110,12 @@ class CardDeck implements GameConstants {
 		
 	}
 	
-	//Cards have MouseListener
+	//after adding all cards into UNOcards it is assigned a mouse lsietener
 	public void addCardListener(MyCardListener listener){
 		for(UNOCard card: UNOcards)
 		card.addMouseListener(listener);
 	}
-	
+	//when the function is called it returns all 108 cards 
 	public LinkedList<UNOCard> getCards(){
 		return UNOcards;
 	}
@@ -162,10 +162,10 @@ class Dealer implements GameConstants {
 	
 	//Shuffle cards
 	public Stack<UNOCard> shuffle(){
-		
+		//carddeck.getcards returns all 108 cards and stores it in DECKOfCards
 		LinkedList<UNOCard> DeckOfCards = cardDeck.getCards();
 		LinkedList<UNOCard> shuffledCards = new LinkedList<UNOCard>();
-		
+		//now what is done is it shuffles all cards and stores it in LinkedList ShuffledCards
 		while(!DeckOfCards.isEmpty()){
 			int totalCards = DeckOfCards.size();
 			
@@ -176,16 +176,17 @@ class Dealer implements GameConstants {
 			DeckOfCards.remove(pos);
 			shuffledCards.add(randomCard);
 		}
-		
+		//puts all the shuffled cards into CardStack
 		CardStack = new Stack<UNOCard>();
 		for(UNOCard card : shuffledCards){
 			CardStack.add(card);
 		}
 		
 		return CardStack;
+                //this is a shuffled stack of cards
 	}
 	
-	//Spread cards to players - 8 each
+	//Spread cards to players - 8 each..as cardstack contains shuffled cards
 	public void spreadOut(Player[] players){		
 		
 		for(int i=1;i<=FIRSTHAND;i++){
@@ -194,7 +195,7 @@ class Dealer implements GameConstants {
 			}
 		}		
 	}
-	
+	//returns the topmost card from the shuffled stack of cards
 	public UNOCard getCard(){
 		return CardStack.pop();
 	}
@@ -225,12 +226,14 @@ class Game implements GameConstants {
 		Player player1 = (GAMEMODE==vsPC) ? pc : new Player(name);
 		Player player2 = new Player(name2);		
 		player2.toggleTurn();				//Initially, player2's turn		
-			
+			//OUR TURN
 		players = new Player[]{player1, player2};			
 		
 		//Create Dealer
 		dealer = new Dealer();
+                //creates a shuffled stack of cards
 		cardStack = dealer.shuffle();
+                //spreads out 8 cards amongst 2 players
 		dealer.spreadOut(players);
 		
 		isOver = false;
@@ -245,7 +248,7 @@ class Game implements GameConstants {
 	}
 	
 	public void removePlayedCard(UNOCard playedCard) {
-
+// once whens a valid card has been seleceted,it is deleted from the cardstack
 		for (Player p : players) {
 			if (p.hasCard(playedCard)){
 				p.removeCard(playedCard);
@@ -287,6 +290,7 @@ class Game implements GameConstants {
 	}
 	
 	//Draw cards x times
+        // used when cards like +2 and +4 are selected
 	public void drawPlus(int times) {
 		for (Player p : players) {
 			if (!p.isMyTurn()) {
@@ -326,7 +330,7 @@ class Game implements GameConstants {
 		
 		return isOver;
 	}
-
+//returns the number of cards present in the cardstack
 	public int remainingCards() {
 		return cardStack.size();
 	}
@@ -406,35 +410,39 @@ class PC extends Player implements GameConstants {
 
 	public PC() {
             //sets name
-		setName("SuperComputer");
+		setName("computer");
 		super.setCards();
 	}
 
 	public PC(Player player) {
 	}
 	
-	//PC plays a card
+		//PC plays a card
 	public boolean play(UNOCard topCard) {
 
 		boolean done = false;
 
 		Color color = topCard.getColor();
 		String value = topCard.getValue();
-		
+		//When the topcard in the centre pane is wildcard
 		if(topCard.getType()==WILD){
 			color = ((WildCard) topCard).getWildColor();			
 		}
 
 		for (UNOCard card : getAllCards()) {
+                    //scans through linked list and compares its card with top card
 
 			if (card.getColor().equals(color) || card.getValue().equals(value)) {
-				
+				//MouseEvent m = new MouseEvent(target, newID, e.getWhen(), e.getModifiers(),
+			//p.x, p.y, e.getClickCount(), e.isPopupTrigger())
 				MouseEvent doPress = new MouseEvent(card, MouseEvent.MOUSE_PRESSED,
 						System.currentTimeMillis(),
 						(int) MouseEvent.MOUSE_EVENT_MASK, 5, 5, 1, true);				
 				card.dispatchEvent(doPress);
 				
-				MouseEvent doRelease = new MouseEvent(card, MouseEvent.MOUSE_RELEASED,
+				
+                                
+                                MouseEvent doRelease = new MouseEvent(card, MouseEvent.MOUSE_RELEASED,
 						System.currentTimeMillis(),
 						(int) MouseEvent.MOUSE_EVENT_MASK, 5, 5, 1, true);
 				card.dispatchEvent(doRelease);
@@ -442,7 +450,7 @@ class PC extends Player implements GameConstants {
 				done = true;
 				break;
 			}
-		}
+	}
 
 		// if no card was found, play wild card
 		if (!done) {
@@ -479,16 +487,17 @@ class Player {
 	private LinkedList<UNOCard> myCards;
 	
 	private int playedCards = 0;
-	
+	// Constructor with no argument whic just creates linked list containg 8 cards
 	public Player(){
 		myCards = new LinkedList<UNOCard>();
 	}
-	
+	//  Constructor (with 1 argument) creating a linked list containing the 8 cards and making the name assigning to player 1
+
 	public Player(String player){
 		setName(player);
 		myCards = new LinkedList<UNOCard>();
 	}
-	
+	//Method for passing the name
 	public void setName(String newName){
 		name = newName;
 	}
@@ -551,7 +560,7 @@ class Player {
 }
 
 interface CardInterface{
-	
+	//
 	int WIDTH = 50;
 	int HEIGHT = 75;
 	Dimension SMALL = new Dimension(WIDTH,HEIGHT);
@@ -562,7 +571,7 @@ interface CardInterface{
 	Dimension CARDSIZE = MEDIUM;
 	
 	//Default offset
-	int OFFSET = 71;
+	//int OFFSET =71 ;
 	
 	void setColor(Color newColor);
 	Color getColor();
@@ -672,6 +681,9 @@ class MyCardListener extends MouseAdapter {
 		}
 	}
 	
+        /*
+        Pops up the card when cursor points to particular card
+        */
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		super.mouseEntered(e);		
@@ -681,7 +693,9 @@ class MyCardListener extends MouseAdapter {
 		p.y -=20;
 		sourceCard.setLocation(p);
 	}
-
+        /*
+        Resets the  card to the original position 
+        */
 	@Override
 	public void mouseExited(MouseEvent e) {
 		sourceCard = (UNOCard) e.getSource();
@@ -689,8 +703,8 @@ class MyCardListener extends MouseAdapter {
 		p.y +=20;
 		sourceCard.setLocation(p);
 	}	
-
-	@Override
+       
+        @Override
 	public void mouseReleased(MouseEvent e) {
 		
 	}	
@@ -698,7 +712,10 @@ class MyCardListener extends MouseAdapter {
 }
 class Server implements GameConstants {
 	private Game game;
+        //game function is just a extension of the server class...takes care how the game goes on..has functions 
+        //such as returnno.ofcards,saidUno,checking whose turn,whether we selected a valid card or not
 	private Session session;
+        //takes care of gui in the game
         //using data structure stack which takes in objects of type uno card...
 	private Stack<UNOCard> playedCards;
 	public boolean canPlay;
@@ -713,11 +730,13 @@ class Server implements GameConstants {
 
 		// First Card
 		UNOCard firstCard = game.getCard();
+                //getcard function in game class in turn calls the dealer function which has a stack of shuffled cards and returns a card
+                //firstcard is the card on the middle
 		modifyFirstCard(firstCard);
 
 		playedCards.add(firstCard);
 		session = new Session(game, firstCard);
-
+                //decides whose turn
 		game.whoseTurn();
 		canPlay = true;
 	}
@@ -910,6 +929,7 @@ class InfoPanel extends JPanel {
 	private int rest = 0;
 	
 	public InfoPanel(){
+            //the box in the left in the box
 		setPreferredSize(new Dimension(275,200));
 		setOpaque(false);
 		error = "";
@@ -931,7 +951,7 @@ class InfoPanel extends JPanel {
 		if(!error.isEmpty()){
 			Font adjustedFont = new Font("Calibri", Font.PLAIN,	25);
 			
-			//Determine the width of the word to position
+			//Determine the width of the word to position...inorder to keep the word within the box
 			FontMetrics fm = this.getFontMetrics(adjustedFont);
 			int xPos = panelCenter - fm.stringWidth(error) / 2;
 			
@@ -947,6 +967,7 @@ class InfoPanel extends JPanel {
 		Font adjustedFont = new Font("Calibri", Font.BOLD,	25);	
 		
 		//Determine the width of the word to position
+                // the fontmetrics class gets information of the the font 
 		FontMetrics fm = this.getFontMetrics(adjustedFont);
 		int xPos = panelCenter - fm.stringWidth(text) / 2;
 		
@@ -1006,10 +1027,11 @@ class MainFrame extends JFrame implements GameConstants {
 	private Server server;
 	
 	public MainFrame(){	
+            //server has all the functions that goes on in the game.Like error messages,status of game,cards selecetd etc
 		server = new Server();
 		CARDLISTENER.setServer(server);
 		BUTTONLISTENER.setServer(server);
-		
+            //session gives the gui output into the screen		
 		mainPanel = server.getSession();
 		add(mainPanel);
 	}
@@ -1043,7 +1065,7 @@ class PlayerPanel extends JPanel implements GameConstants {
 		// Set
 		setCards();
 		setControlPanel();
-
+                //shuffled stack
 		myLayout.add(cardHolder);
 		myLayout.add(Box.createHorizontalStrut(40));
 		myLayout.add(controlPanel);
@@ -1063,10 +1085,12 @@ class PlayerPanel extends JPanel implements GameConstants {
 
 		// Origin point at the center
 		Point origin = getPoint(cardHolder.getWidth(), player.getTotalCards());
+                //offset gets the int value which indicates how much the cards should be packed as the card size increases
 		int offset = calculateOffset(cardHolder.getWidth(),
 				player.getTotalCards());
 
 		int i = 0;
+                //player initially has 8 cards..orgin.x and origin.y returns the location as to where the card should be placed in a jlayered pane
 		for (UNOCard card : player.getAllCards()) {
 			card.setBounds(origin.x, origin.y, card.CARDSIZE.width,
 					card.CARDSIZE.height);
@@ -1115,7 +1139,9 @@ class PlayerPanel extends JPanel implements GameConstants {
 		controlPanel.add(sayUNO);
 	}
 
-	private int calculateOffset(int width, int totalCards) {
+	private int calculateOffset(int width, int totalCards)
+                //calculates by how much the card should be shifted
+        {
 		int offset = 71;
 		if (totalCards <= 8) {
 			return offset;
@@ -1143,6 +1169,7 @@ class PlayerPanel extends JPanel implements GameConstants {
 				
 				if(e.getSource()==draw)
 					BUTTONLISTENER.drawCard();
+                                //goes to myserver class and requests a card..which in turn calls the dealer class and pops a card from shuffled cards
 				else if(e.getSource()==sayUNO)
 					BUTTONLISTENER.sayUNO();
 			}
@@ -1219,14 +1246,14 @@ class TablePanel extends JPanel implements GameConstants {
 	}
 	
 	private void setTable(){
-		
+	//middle box is the table here	
 		table.setPreferredSize(new Dimension(500,200));
 		table.setLayout(new GridBagLayout());
-		
+	//gridbag layout is used to align components horizontally and vertically	
 		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 0;
+		c.gridx = 200;
+		c.gridy = 200;
 		table.add(topCard, c);
 	}
 	
@@ -1249,6 +1276,7 @@ class TablePanel extends JPanel implements GameConstants {
 
 	public void setPlayedCard(UNOCard playedCard){
 		table.removeAll();
+                //played cars on the table are removed
 		topCard = playedCard;
 		setTable();
 		
